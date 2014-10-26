@@ -14,7 +14,6 @@ Changes
 
 ###xmonad.hs###
 *  arrange workspaces in status bar as reported by [XMonad.Util.WorkspaceCompare getXineramaWsCompare](https://hackage.haskell.org/package/xmonad-contrib-0.9.1/docs/XMonad-Util-WorkspaceCompare.html) instead of defaults. Without this, workspaces appeared in reverse on my setup. YMMV with multiple external monitors.
-*  swap mod-w and mod-e keys, as xmonad still thinks workspaces are right / left of each other... this is a hack until I figure out why xmonad isn't respecting the xrandr setup in `start-xmonad` above
 *  swaped out regular `gnome-terminal` for `terminator`, as I'm not a fan of the latter
 *  more fine grained amixer volume control from keyboard
 *  remove komodo bindings for dev workspace
