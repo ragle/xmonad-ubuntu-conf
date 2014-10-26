@@ -35,16 +35,23 @@ import qualified XMonad.StackSet as W
 import qualified Data.Map as M
 import Data.Ratio ((%))
 
+-- @ragle config - pull in utility for comparing workspace to resolve positioning issues
+import XMonad.Util.WorkspaceCompare
+
+-- @ragle config - pull in hooks for managing window transparency
+import XMonad.Hooks.FadeWindows
+import XMonad.Hooks.ManageHelpers
 {-
   Xmonad configuration variables. These settings control some of the
   simpler parts of xmonad's behavior and are straightforward to tweak.
 -}
-
 myModMask            = mod4Mask       -- changes the mod key to "super"
 myFocusedBorderColor = "#ff0000"      -- color of focused border
 myNormalBorderColor  = "#cccccc"      -- color of inactive border
 myBorderWidth        = 1              -- width of border around windows
-myTerminal           = "terminator"   -- which terminal software to use
+
+-- @ragle config - swap terminator for gnome-terminal
+myTerminal           = "gnome-terminal"   -- which terminal software to use
 myIMRosterTitle      = "Buddy List"   -- title of roster on IM workspace
                                       -- use "Buddy List" for Pidgin, but
                                       -- "Contact List" for Empathy
@@ -87,12 +94,13 @@ myUrgentWSRight = "}"
   as well.
 -}
 
+-- @ragle config - rename / move a few workspaces. Note `como` and `pix` are bound in code below
 myWorkspaces =
   [
-    "7:Chat",  "8:Dbg", "9:Pix",
-    "4:Docs",  "5:Dev", "6:Web",
-    "1:Term",  "2:Hub", "3:Mail",
-    "0:VM",    "Extr1", "Extr2"
+    "7:Como",  "8:Web", "9:Pix",
+    "4:Term1",  "5:Dev", "6:Docs",
+    "1:Term2",  "2:VM", "3:Mail",
+    "0:ToDo",    "Extr1", "Extr2"
   ]
 
 startupWorkspace = "5:Dev"  -- which workspace do you want to be on after launch?
@@ -171,7 +179,7 @@ gimpLayout = smartBorders(avoidStruts(ThreeColMid 1 (3/100) (3/4)))
 -- Here we combine our default layouts with our specific, workspace-locked
 -- layouts.
 myLayouts =
-  onWorkspace "7:Chat" chatLayout
+  onWorkspace "7:Como" chatLayout
   $ onWorkspace "9:Pix" gimpLayout
   $ defaultLayouts
 
@@ -209,8 +217,10 @@ myKeyBindings =
     , ((myModMask .|. mod1Mask, xK_space), spawn "synapse")
     , ((myModMask, xK_u), focusUrgent)
     , ((0, 0x1008FF12), spawn "amixer -q set Master toggle")
-    , ((0, 0x1008FF11), spawn "amixer -q set Master 10%-")
-    , ((0, 0x1008FF13), spawn "amixer -q set Master 10%+")
+
+    -- @ragle config - make volume increments more fine grained @5%
+    , ((0, 0x1008FF11), spawn "amixer -q set Master 5%-")
+    , ((0, 0x1008FF13), spawn "amixer -q set Master 5%+")
   ]
 
 
@@ -257,17 +267,14 @@ myKeyBindings =
       editing images.
 -}
 
+-- @ragle config - remove komodo bindings to dev workspace
 myManagementHooks :: [ManageHook]
 myManagementHooks = [
   resource =? "synapse" --> doIgnore
   , resource =? "stalonetray" --> doIgnore
   , className =? "rdesktop" --> doFloat
-  , (className =? "Komodo IDE") --> doF (W.shift "5:Dev")
-  , (className =? "Komodo IDE" <&&> resource =? "Komodo_find2") --> doFloat
-  , (className =? "Komodo IDE" <&&> resource =? "Komodo_gotofile") --> doFloat
-  , (className =? "Komodo IDE" <&&> resource =? "Toplevel") --> doFloat
-  , (className =? "Empathy") --> doF (W.shift "7:Chat")
-  , (className =? "Pidgin") --> doF (W.shift "7:Chat")
+  , (className =? "Empathy") --> doF (W.shift "7:Como")
+  , (className =? "Pidgin") --> doF (W.shift "7:Como")
   , (className =? "Gimp-2.8") --> doF (W.shift "9:Pix")
   ]
 
@@ -308,6 +315,9 @@ numKeys =
 -- that we are telling xmonad how to navigate workspaces,
 -- how to send windows to different workspaces,
 -- and what keys to use to change which monitor is focused.
+--
+-- @ragle config - swapped e & w as for some reason that I've yet to discover
+-- xmonad isn't respecting --left-of --right-of as set by xrandr in start-xmonad bash script...
 myKeys = myKeyBindings ++
   [
     ((m .|. myModMask, k), windows $ f i)
@@ -323,7 +333,7 @@ myKeys = myKeyBindings ++
   [
     ((m .|. myModMask, key), screenWorkspace sc
       >>= flip whenJust (windows . f))
-      | (key, sc) <- zip [xK_w, xK_e, xK_r] [1,0,2]
+      | (key, sc) <- zip [xK_e, xK_w, xK_r] [1,0,2]
       , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]
   ]
 
@@ -353,7 +363,15 @@ main = do
       <+> composeAll myManagementHooks
       <+> manageDocks
   , logHook = takeTopFocus <+> dynamicLogWithPP xmobarPP {
-      ppOutput = hPutStrLn xmproc
+      {- ragle config: 
+         Hack using ppSort to sort workspaces based on Xinerama layout as I have to manage monitors manually w/ xrandr
+         after startup until I can understand why xmonad isn't respecting stored xorg.conf display settings
+         see docs @: 
+             http://hackage.haskell.org/package/xmonad-contrib-0.8.1/docs/XMonad-Hooks-DynamicLog.html#v%3AppOrder
+             http://hackage.haskell.org/package/xmonad-contrib-0.8.1/docs/XMonad-Hooks-DynamicLog.html#v%3AppOrder
+      -}       
+      ppSort = mkWsSort getXineramaWsCompare
+      , ppOutput = hPutStrLn xmproc
       , ppTitle = xmobarColor myTitleColor "" . shorten myTitleLength
       , ppCurrent = xmobarColor myCurrentWSColor ""
         . wrap myCurrentWSLeft myCurrentWSRight
@@ -364,3 +382,12 @@ main = do
     }
   }
     `additionalKeys` myKeys
+
+-- @ragle config - begin work on compositing / transparency management (not yet implemented)
+{-
+myFadeHook = composeAll
+             [ isUnfocused  --> transparency 0.00
+             , isFullscreen --> transparency 0.00
+             , isUnfocused  --> transparency 0.10
+             ]
+-}

@@ -1,3 +1,49 @@
+ragle's xmonad-ubuntu-conf
+=========================
+
+Forked from [David Brewer's](https://github.com/davidbrewer) excellent [xmonad-ubuntu-conf](https://github.com/davidbrewer) with a few documented changes for how I set up support for two external monitors, and how hack around some workspace arrangement issues that may come up as a result.
+
+
+Changes
+-------
+
+###start-xmonad###
+
+*  Modified configuration for attaching two external monitors instead of one
+  *  Note - this is simply an example of how you can [configure xrandr](http://manpages.ubuntu.com/manpages/trusty/man1/xrandr.1.html) to deal with two external monitors. You will likely need to make your own modifications - but looking at my setup and David's original for a single external monitor should be enough to get you started if you've not done this before.
+
+###xmonad.hs###
+*  arrange workspaces in status bar as reported by [XMonad.Util.WorkspaceCompare getXineramaWsCompare](https://hackage.haskell.org/package/xmonad-contrib-0.9.1/docs/XMonad-Util-WorkspaceCompare.html) instead of defaults. Without this, workspaces appeared in reverse on my setup. YMMV with multiple external monitors.
+*  swap mod-w and mod-e keys, as xmonad still thinks workspaces are right / left of each other... this is a hack until I figure out why xmonad isn't respecting the xrandr setup in `start-xmonad` above
+*  swaped out regular `gnome-terminal` for `terminator`, as I'm not a fan of the latter
+*  more fine grained amixer volume control from keyboard
+*  remove komodo bindings for dev workspace
+
+###startup-hook###
+*  Don't startup remmina remote desktop tool, as this isn't something I use
+
+
+In general, none of these modifications are earth shattering - but if you are new to Haskell (as I am) - seeing my changes against David's original might be instructive on how to start making your own.
+
+
+View All Changes
+----------------
+
+To keep track of changes (to know where something may have gone wrong if things start breaking as my knowledge of Haskell is limited to what I can grok on the fly based on having done some functional programming in other languages) I've tried to add `-- @ragle config` before any modifications to David's original config. Also makes it easy to selectively keep or back out any of my changes without fiddling with diffs or commit histories. 
+
+To get a list of line number entry points for changes made, just run:
+
+`$ cat xmonad.hs | grep -n  "@ragle"`
+
+`$ cat start-xmonad | grep -n "@ragle"`
+
+`$ cat startup-hook | grep -n "@ragle"` 
+
+
+David's original documentation follows below... 
+
+
+
 xmonad-ubuntu-conf
 ==================
 
