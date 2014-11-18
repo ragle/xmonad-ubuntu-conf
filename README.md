@@ -13,7 +13,7 @@ Changes
   *  Note - this is simply an example of how you can [configure xrandr](http://manpages.ubuntu.com/manpages/trusty/man1/xrandr.1.html) to deal with two external monitors. You will likely need to make your own modifications - but looking at my setup and David's original for a single external monitor should be enough to get you started if you've not done this before.
 
 ###xmonad.hs###
-*  Deal with [issue 200](https://code.google.com/p/xmonad/issues/detail?id=200) by using [comment 15's suggestion](https://code.google.com/p/xmonad/issues/detail?id=200#hc15) of adding the [EwmhDesktops hook](http://xmonad.org/xmonad-docs/xmonad-contrib/XMonad-Hooks-EwmhDesktops.html). 
+*  Deal with [issue 200](https://code.google.com/p/xmonad/issues/detail?id=200) (focus flicker bug in libreoffice) by using [comment 15's suggestion](https://code.google.com/p/xmonad/issues/detail?id=200#hc15) of adding the [EwmhDesktops hook](http://xmonad.org/xmonad-docs/xmonad-contrib/XMonad-Hooks-EwmhDesktops.html). 
 *  arrange workspaces in status bar as reported by [XMonad.Util.WorkspaceCompare getXineramaWsCompare](https://hackage.haskell.org/package/xmonad-contrib-0.9.1/docs/XMonad-Util-WorkspaceCompare.html) instead of defaults. Without this, workspaces appeared in reverse on my setup. YMMV with multiple external monitors.
 *  swaped out regular `gnome-terminal` for `terminator`, as I'm not a fan of the latter
 *  more fine grained amixer volume control from keyboard
