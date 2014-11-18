@@ -41,6 +41,10 @@ import XMonad.Util.WorkspaceCompare
 -- @ragle config - pull in hooks for managing window transparency
 import XMonad.Hooks.FadeWindows
 import XMonad.Hooks.ManageHelpers
+
+-- @ragle config - pull in hook to deal with subtleties of libreoffice's retardation
+import XMonad.Hooks.EwmhDesktops
+
 {-
   Xmonad configuration variables. These settings control some of the
   simpler parts of xmonad's behavior and are straightforward to tweak.
@@ -97,13 +101,13 @@ myUrgentWSRight = "}"
 -- @ragle config - rename / move a few workspaces. Note `como` and `pix` are bound in code below
 myWorkspaces =
   [
-    "7:Como",  "8:Web", "9:Pix",
-    "4:Term1",  "5:Dev", "6:Docs",
-    "1:Term2",  "2:VM", "3:Mail",
-    "0:ToDo",    "Extr1", "Extr2"
+    "7:Como",  "8:Buff", "9:Pix",
+    "4:Docs1",  "5:Docs2", "6:Files",
+    "1:Dev1",  "2:Dev2", "3:VM",
+    "0:ToDo",    "Web", "Music"
   ]
 
-startupWorkspace = "5:Dev"  -- which workspace do you want to be on after launch?
+startupWorkspace = "Web"  -- which workspace do you want to be on after launch?
 
 {-
   Layout configuration. In this section we identify which xmonad
@@ -344,9 +348,11 @@ myKeys = myKeyBindings ++
   content into it via the logHook.
 -}
 
+
+-- @ragle config - add ewmhDesktops support for openoffice bug
 main = do
   xmproc <- spawnPipe "xmobar ~/.xmonad/xmobarrc"
-  xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig {
+  xmonad $ withUrgencyHook NoUrgencyHook $ ewmh defaultConfig {
     focusedBorderColor = myFocusedBorderColor
   , normalBorderColor = myNormalBorderColor
   , terminal = myTerminal
@@ -354,7 +360,7 @@ main = do
   , layoutHook = myLayouts
   , workspaces = myWorkspaces
   , modMask = myModMask
-  , handleEventHook = fullscreenEventHook
+  , handleEventHook = XMonad.Hooks.EwmhDesktops.fullscreenEventHook
   , startupHook = do
       setWMName "LG3D"
       windows $ W.greedyView startupWorkspace
