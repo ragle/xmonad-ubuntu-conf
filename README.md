@@ -3,7 +3,6 @@ ragle's xmonad-ubuntu-conf
 
 Forked from [David Brewer's](https://github.com/davidbrewer) excellent [xmonad-ubuntu-conf](https://github.com/davidbrewer) with a few documented changes for how I set up support for two external monitors, and how hack around some workspace arrangement issues that may come up as a result.
 
-
 Changes
 -------
 
