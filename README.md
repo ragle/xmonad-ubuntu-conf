@@ -33,11 +33,7 @@ To keep track of changes (to know where something may have gone wrong if things 
 
 To get a list of line number entry points for changes made, just run:
 
-`$ cat xmonad.hs | grep -n  "@ragle"`
-
-`$ cat start-xmonad | grep -n "@ragle"`
-
-`$ cat startup-hook | grep -n "@ragle"` 
+`$ grep -irn "@ragle" -A2 -B2` 
 
 
 David's original documentation follows below... 
